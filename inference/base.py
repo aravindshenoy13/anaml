@@ -1,13 +1,24 @@
-from backends.pickle_backend import pickle_load_model
+from backends.pickle_backend import PickleModel
+from backends.onyx_backend import OnyxModel
 
-def load(model_id, model_type):
-    weights_path = None
-    if model_type == 'pickle':
-        model = pickle_load_model(weights_path)
-    elif model_type == 'onyx':
-        pass
-    else:
-        pass
+class InferenceEngine:
+    def __init__(self, model_id, model_type):
+        self.model_id = model_id
+        self.model_type = model_type
+        self.model = None
 
-def predict(input):
+    def load(self):
+        weight_path, model_type = database_get(self.model_id)
+        if model_type == 'pickle':
+            self.model = PickleModel(weight_path)
+        elif model_type == 'onyx':
+            self.model = OnyxModel(weight_path)
+        elif model_type == 'remote':
+            pass
     
+    def predict(self, input):
+        return self.model.predict(input)
+    
+    async def stream(self, input):
+        async for output in self.model.stream(input):
+            yield output
