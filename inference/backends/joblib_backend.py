@@ -1,15 +1,19 @@
 import joblib
+from base import BaseEngine
+from typing import AsyncGenerator
 
-class JoblibModel:
-    def __init__(self, weight_path):
-        self.model_path = weight_path
+class JoblibModel(BaseEngine):
+    def __init__(self):
         self.model = None
 
-    def load(self):
+    def load(self, weight_path: str):
+        self.model_path = weight_path
         self.model = joblib.load(self.model_path)
-        return self.model
     
-    def predict(self, input_data):
+    def predict(self, input_data: dict) -> dict:
+        if self.model is None:
+            raise RuntimeError("Model not loaded, call load() first")
+
         if "features" in input_data:
             modified_input_data = [input_data["features"]]
         elif "text" in input_data:
@@ -28,7 +32,7 @@ class JoblibModel:
             if hasattr(self.model, "predict_proba"):
                 probs = self.model.predict_proba(modified_input_data)
                 confidence = probs.max(axis=1).tolist()
-            if hasattr(self.model, "decision_function"):
+            elif hasattr(self.model, "decision_function"):
                 scores = self.model.decision_function(modified_input_data)
                 confidence = scores.tolist()
         except Exception as e:
@@ -37,7 +41,7 @@ class JoblibModel:
         #Return as a dictionary
         return {"predictions": result.tolist(), "confidence": confidence}
     
-    async def stream(self, input_data):
+    async def stream(self, input_data: dict) -> AsyncGenerator[dict, None]:
         result = self.predict(input_data)
         yield result
     

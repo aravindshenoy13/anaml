@@ -1,10 +1,19 @@
-import onnxruntime as ort
+from typing import AsyncGenerator
 
-class OnyxModel:
-    def __init__(self, weight_path):
-        self.model_path = weight_path
+import onnxruntime as ort
+from base import BaseEngine
+
+class OnyxModel(BaseEngine):
+    def __init__(self):
+        self.model_path = None
         self.model = None
     
-    def load(self):
+    def load(self, weight_path: str):
+        self.model_path = weight_path
         self.model = ort.InferenceSession(self.model_path)
-        return self.model
+    
+    def predict(self, input_data: dict) -> dict:
+        pass
+
+    async def stream(self, input_data: dict) -> AsyncGenerator[dict, None]:
+        pass
