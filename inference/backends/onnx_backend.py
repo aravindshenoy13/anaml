@@ -3,7 +3,7 @@ from typing import AsyncGenerator
 import onnxruntime as ort
 from base import BaseEngine
 
-class OnyxModel(BaseEngine):
+class OnnxModel(BaseEngine):
     def __init__(self):
         self.model_path = None
         self.model = None
