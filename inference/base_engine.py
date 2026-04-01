@@ -1,4 +1,4 @@
-from backends.pickle_backend import PickleModel
+from inference.backends.joblib_backend import JoblibModel
 from backends.onyx_backend import OnyxModel
 
 class InferenceEngine:
@@ -9,10 +9,12 @@ class InferenceEngine:
 
     def load(self):
         weight_path, model_type = database_get(self.model_id)
-        if model_type == 'pickle':
-            self.model = PickleModel(weight_path)
+        if model_type == 'joblib':
+            self.model = JoblibModel(weight_path)
+            self.model.load()
         elif model_type == 'onyx':
             self.model = OnyxModel(weight_path)
+            self.model.load()
         elif model_type == 'remote':
             pass
     
