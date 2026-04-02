@@ -1,8 +1,6 @@
 import datetime
-
 from core.database import DBBase
-from core.config import MODEL_DIR
-from sqlalchemy import Column, String, Float, Integer, DateTime, Text, ForeignKey
+from sqlalchemy import Column, String, Float, DateTime, Text, ForeignKey
 import uuid
 
 def get_uuid():
@@ -30,8 +28,8 @@ class InferenceLog(DBBase):
     id = Column(String, primary_key=True, index=True, default=get_uuid)
     model_id = Column(String, ForeignKey("ml_models.id"), nullable=False)
     input_data = Column(Text, nullable=False)
-    output_data = Column(Text, nullable=False)
-    latency = Column(Float, nullable=False)
+    output_data = Column(Text, nullable=True)
+    latency = Column(Float, nullable=True)
     status = Column(String(50), nullable=False)
     error_message = Column(Text, default=None)
     created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
