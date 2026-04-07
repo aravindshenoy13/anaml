@@ -24,7 +24,8 @@ async def list_models(session = Depends(get_session)) -> List[ModelResponse]:
 @model_router.get(path="/{id}")
 async def get_model_id(id: str, session = Depends(get_session)) -> ModelResponse:
     query = select(MLModel).where(MLModel.id == id)
-    model = await session.execute(query).scalar_one_or_none()
+    result = await session.execute(query)
+    model  = result.scalar_one_or_none()
     
     if model is None:
         raise HTTPException(status_code=404, detail=f"Model with id {id} does not exist!")
