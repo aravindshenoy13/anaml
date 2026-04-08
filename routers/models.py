@@ -8,6 +8,7 @@ from sqlalchemy import select
 from typing import List
 from pathlib import Path
 import aiofiles
+import shutil
 
 model_router = APIRouter(prefix="/models")
 
@@ -40,7 +41,7 @@ async def model_register(file: UploadFile,
             inference_url = None
             )
     session.add(model)
-    session.commit()
+    await session.commit()
     return model
 
 @model_router.get(path="/")
@@ -48,7 +49,6 @@ async def list_models(session = Depends(get_session)) -> List[ModelResponse]:
     query = select(MLModel)
     result = await session.execute(query)
     model_list = result.scalars().all()
-
     return model_list
 
 @model_router.get(path="/{id}")
@@ -74,7 +74,7 @@ async def update_model(id: str, model_update: ModelUpdate, session = Depends(get
     for k,v in update_data.items():
         setattr(model, k, v)
     
-    session.commit()
+    await session.commit()
     return model
 
 
@@ -86,9 +86,8 @@ async def delete_model(id: str, session = Depends(get_session)) -> Response:
     if model is None:
         raise HTTPException(status_code=404, detail=f"Model with id {id} does not exist!")
     
-    #Unlink model weights path in server
-    Path(model.weights_path).unlink(missing_ok=True)
-    session.delete(model)
-    session.commit()
+    shutil.rmtree(Path(model.weights_path).parent)
+    await session.delete(model)
+    await session.commit()
 
     return Response(status_code = 204)
