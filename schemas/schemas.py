@@ -23,7 +23,7 @@ class ModelUpdate(BaseModel):
     description: str | None = None
     accuracy: float | None = None
     backend_type: Literal["onnx", "joblib"] | None = None
-    status: Literal["active", "archived"] = "active"
+    status: Literal["active", "archived"] | None = None
 
 class PredictRequest(BaseModel):
     input_data: dict

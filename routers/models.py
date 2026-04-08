@@ -21,9 +21,11 @@ async def model_register(file: UploadFile,
                         accuracy: float | None = Form(default=None),
                         session = Depends(get_session)) -> ModelResponse:
     model_id = get_uuid()
-
-    file_extension = Path(file.filename).suffix
-    file_path = MODEL_DIR + f"/model_{model_id}/model_{model_id}"+ file_extension
+    try:
+        file_extension = Path(file.filename).suffix
+    except TypeError:
+        raise HTTPException(status_code=400)
+    file_path = Path(MODEL_DIR) / f"model_{model_id}" / f"model_{model_id}{file_extension}"
     Path(file_path).parent.mkdir(exist_ok=True)
     file_bytes = await file.read()
 
@@ -33,7 +35,7 @@ async def model_register(file: UploadFile,
     model = MLModel(id = model_id,
             name = name,
             version = version,
-            backend = backend_type,
+            backend_type = backend_type,
             description = description,
             accuracy = accuracy,
             weights_path = file_path,
@@ -42,6 +44,7 @@ async def model_register(file: UploadFile,
             )
     session.add(model)
     await session.commit()
+    await session.refresh(model)
     return model
 
 @model_router.get(path="/")
@@ -75,6 +78,7 @@ async def update_model(id: str, model_update: ModelUpdate, session = Depends(get
         setattr(model, k, v)
     
     await session.commit()
+    await session.refresh(model)
     return model
 
 
@@ -86,7 +90,8 @@ async def delete_model(id: str, session = Depends(get_session)) -> Response:
     if model is None:
         raise HTTPException(status_code=404, detail=f"Model with id {id} does not exist!")
     
-    shutil.rmtree(Path(model.weights_path).parent)
+    if Path(model.weights_path).exists():
+        shutil.rmtree(Path(model.weights_path).parent)
     await session.delete(model)
     await session.commit()
 

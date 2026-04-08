@@ -15,12 +15,12 @@ class MLModel(DBBase):
     description = Column(Text)
     accuracy = Column(Float)
     weights_path = Column(String(255), nullable=False)
-    backend = Column(String(50), nullable=False)
+    backend_type = Column(String(50), nullable=False)
     storage_type = Column(String(50), nullable=False)
     status = Column(String(50), nullable=False, default="active")
     inference_url = Column(String(500), nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-    last_updated = Column(DateTime, nullable=False, onupdate=datetime.datetime.utcnow)
+    last_updated = Column(DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
 class InferenceLog(DBBase):
     __tablename__ = "inference_logs"

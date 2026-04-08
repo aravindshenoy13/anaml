@@ -1,5 +1,5 @@
-from backends.joblib_backend import JoblibModel
-from backends.onnx_backend import OnnxModel
+from inference.backends.joblib_backend import JoblibModel
+from inference.backends.onnx_backend import OnnxModel
 
 reg = {
     "joblib": JoblibModel,

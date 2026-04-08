@@ -1,5 +1,5 @@
 import joblib
-from base import BaseEngine
+from inference.base import BaseEngine
 from typing import AsyncGenerator
 
 class JoblibModel(BaseEngine):

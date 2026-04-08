@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
 import onnxruntime as ort
-from base import BaseEngine
+from inference.base import BaseEngine
 
 class OnnxModel(BaseEngine):
     def __init__(self):
