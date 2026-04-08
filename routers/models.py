@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, Form
 from fastapi.responses import Response
-from schemas.schemas import ModelCreate, ModelResponse, ModelUpdate
+from schemas.schemas import ModelResponse, ModelUpdate
 from core.config import MODEL_DIR
 from core.database import get_session
 from models.models import MLModel, get_uuid
@@ -40,7 +40,7 @@ async def model_register(file: UploadFile,
             inference_url = None
             )
     session.add(model)
-    await session.commit()
+    session.commit()
     return model
 
 @model_router.get(path="/")
@@ -74,7 +74,7 @@ async def update_model(id: str, model_update: ModelUpdate, session = Depends(get
     for k,v in update_data.items():
         setattr(model, k, v)
     
-    await session.commit()
+    session.commit()
     return model
 
 
@@ -89,6 +89,6 @@ async def delete_model(id: str, session = Depends(get_session)) -> Response:
     #Unlink model weights path in server
     Path(model.weights_path).unlink(missing_ok=True)
     session.delete(model)
-    await session.commit()
+    session.commit()
 
     return Response(status_code = 204)
