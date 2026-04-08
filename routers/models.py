@@ -24,7 +24,7 @@ async def model_register(file: UploadFile,
 
     file_extension = Path(file.filename).suffix
     file_path = MODEL_DIR + f"/model_{model_id}/model_{model_id}"+ file_extension
-    Path(Path(file_path).parent).mkdir(exist_ok=True)
+    Path(file_path).parent.mkdir(exist_ok=True)
     file_bytes = await file.read()
 
     async with aiofiles.open(file_path, "wb") as f:
