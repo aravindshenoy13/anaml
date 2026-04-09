@@ -23,9 +23,9 @@ async def predict(id: str, predict_req: PredictRequest, session = Depends(get_se
         backend = get_model_class(model_db.backend_type)
         model = backend()
         model.load(model_db.weights_path)
-        model_cache[id] = model
+        model_cache[id] = (model, model_db)
     else:
-        model = model_cache[id]
+        model, model_db = model_cache[id]
 
     inference_start = time.perf_counter()
     try:
