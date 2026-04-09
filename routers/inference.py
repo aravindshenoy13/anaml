@@ -39,8 +39,7 @@ async def predict(id: str, predict_req: PredictRequest, session = Depends(get_se
             output_data = None,
             latency = None,
             status = "Failed",
-            error_message = str(e),
-            created_at = inference_start
+            error_message = str(e)
         )
         session.add(log)
         await session.commit()
@@ -57,8 +56,7 @@ async def predict(id: str, predict_req: PredictRequest, session = Depends(get_se
         output_data = json.dumps(output_data),
         latency = latency,
         status = "Successful",
-        error_message = None,
-        created_at = inference_start
+        error_message = None
     )
     session.add(log)
     await session.commit()
