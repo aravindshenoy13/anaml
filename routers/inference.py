@@ -12,20 +12,21 @@ model_cache = {}
 
 @router.post(path="/models/{id}/predict")
 async def predict(id: str, predict_req: PredictRequest, session = Depends(get_session)) -> PredictResponse:
-    if id not in model_cache:
-        query = select(MLModel).where(MLModel.id == id)
-        result = await session.execute(query)
-        model_db = result.scalar_one_or_none()
 
-        if model_db is None:
-            raise HTTPException(status_code=404, detail=f"Model with id {id} does not exist!")
-        
+    query = select(MLModel).where(MLModel.id == id)
+    result = await session.execute(query)
+    model_db = result.scalar_one_or_none()
+
+    if model_db is None:
+        raise HTTPException(status_code=404, detail=f"Model with id {id} does not exist!")
+    
+    if id not in model_cache:
         backend = get_model_class(model_db.backend_type)
         model = backend()
         model.load(model_db.weights_path)
-        model_cache[id] = (model, model_db)
+        model_cache[id] = model
     else:
-        model, model_db = model_cache[id]
+        model = model_cache[id]
 
     inference_start = time.perf_counter()
     try:
