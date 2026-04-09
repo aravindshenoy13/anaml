@@ -5,7 +5,7 @@ from core.config import MODEL_DIR
 from core.database import get_session
 from models.models import MLModel, get_uuid
 from sqlalchemy import select
-from typing import List
+from typing import List, Literal
 from pathlib import Path
 import aiofiles
 import shutil
@@ -16,7 +16,7 @@ model_router = APIRouter(prefix="/models")
 async def model_register(file: UploadFile,
                         name: str = Form(...),
                         version: str = Form(...),
-                        backend_type: str = Form(default="joblib"),
+                        backend_type: Literal["onnx", "joblib"] = Form(default="joblib"),
                         description: str | None = Form(default=None),
                         accuracy: float | None = Form(default=None),
                         session = Depends(get_session)) -> ModelResponse:
