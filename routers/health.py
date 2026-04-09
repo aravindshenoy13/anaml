@@ -3,13 +3,13 @@ from fastapi.responses import JSONResponse
 from core.database import get_session
 from sqlalchemy import text
 
-health_router = APIRouter(prefix="/health/")
+health_router = APIRouter(prefix="/health")
 
-@health_router.get("live")
+@health_router.get("/live")
 async def health_live():
     return JSONResponse(content={"status": "alive"})
 
-@health_router.get("ready")
+@health_router.get("/ready")
 async def health_ready(session = Depends(get_session)):
     try:
         await session.execute(text("SELECT 1"))
