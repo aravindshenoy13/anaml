@@ -44,6 +44,7 @@ async def predict(id: int, predict_req: PredictRequest, session = Depends(get_se
         )
         session.add(log)
         await session.commit()
+        #Which error code
         raise HTTPException()
 
     latency = time.perf_counter() - inference_start
@@ -52,8 +53,8 @@ async def predict(id: int, predict_req: PredictRequest, session = Depends(get_se
     log = InferenceLog(
         id = log_id,
         model_id = id,
-        input_data = predict_req.input_data,
-        output_data = output_data,
+        input_data = json.dumps(predict_req.input_data),
+        output_data = json.dumps(output_data),
         latency = latency,
         status = "Successful",
         error_message = None,
@@ -61,3 +62,13 @@ async def predict(id: int, predict_req: PredictRequest, session = Depends(get_se
     )
     session.add(log)
     await session.commit()
+
+    response = PredictResponse(
+        model_id=id,
+        model_name = model_db.name,
+        model_version= model_db.version,
+        output_data= output_data,
+        latency= latency
+    )
+
+    return response
