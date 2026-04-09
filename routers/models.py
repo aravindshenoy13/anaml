@@ -38,7 +38,7 @@ async def model_register(file: UploadFile,
             backend_type = backend_type,
             description = description,
             accuracy = accuracy,
-            weights_path = file_path,
+            weights_path = str(file_path),
             storage_type = "disk",
             inference_url = None
             )
