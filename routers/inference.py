@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from schemas.schemas import PredictRequest, PredictResponse
-from models.models import InferenceLog, MLModel
+from models.models import InferenceLog, MLModel, get_uuid
 from inference.registry import get_model_class
 from core.database import get_session
 from sqlalchemy import select
@@ -27,8 +27,37 @@ async def predict(id: int, predict_req: PredictRequest, session = Depends(get_se
     else:
         model = model_cache[id]
 
-    before = time.perf_counter()
-    model.predict(predict_req.input_data)
-    latency = time.perf_counter() - before
+    inference_start = time.perf_counter()
+    try:
+        output_data = model.predict(predict_req.input_data)
+    except Exception as e:
+        log_id  = get_uuid()
+        log = InferenceLog(
+            id = log_id,
+            model_id = id,
+            input_data = predict_req.input_data,
+            output_data = None,
+            latency = None,
+            status = "Failed",
+            error_message = str(e),
+            created_at = inference_start
+        )
+        session.add(log)
+        await session.commit()
+        raise HTTPException()
 
-    log = InferenceLog()
+    latency = time.perf_counter() - inference_start
+
+    log_id  = get_uuid()
+    log = InferenceLog(
+        id = log_id,
+        model_id = id,
+        input_data = predict_req.input_data,
+        output_data = output_data,
+        latency = latency,
+        status = "Successful",
+        error_message = None,
+        created_at = inference_start
+    )
+    session.add(log)
+    await session.commit()
