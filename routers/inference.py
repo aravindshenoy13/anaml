@@ -43,8 +43,7 @@ async def predict(id: str, predict_req: PredictRequest, session = Depends(get_se
         )
         session.add(log)
         await session.commit()
-        #Which error code
-        raise HTTPException()
+        raise HTTPException(status_code=500, detail="Model Inference failed")
 
     latency = time.perf_counter() - inference_start
 
