@@ -11,7 +11,7 @@ router = APIRouter()
 model_cache = {}
 
 @router.post(path="/models/{id}/predict")
-async def predict(id: int, predict_req: PredictRequest, session = Depends(get_session)) -> PredictResponse:
+async def predict(id: str, predict_req: PredictRequest, session = Depends(get_session)) -> PredictResponse:
     if id not in model_cache:
         query = select(MLModel).where(MLModel.id == id)
         result = await session.execute(query)
