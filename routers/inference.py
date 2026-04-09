@@ -7,10 +7,10 @@ from sqlalchemy import select
 import time
 import json
 
-router = APIRouter()
+inference_router = APIRouter()
 model_cache = {}
 
-@router.post(path="/models/{id}/predict")
+@inference_router.post(path="/models/{id}/predict")
 async def predict(id: str, predict_req: PredictRequest, session = Depends(get_session)) -> PredictResponse:
 
     query = select(MLModel).where(MLModel.id == id)
