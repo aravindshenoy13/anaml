@@ -13,7 +13,7 @@ class ModelResponse(ModelCreate):
     id: str
     status: Literal["active", "archived"] = "active"
     created_at: datetime
-    last_updated: datetime | None = None
+    last_updated: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
