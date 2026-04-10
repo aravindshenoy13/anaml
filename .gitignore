@@ -3,3 +3,5 @@ venv/
 mydatabase.db
 test/
 .claude/
+__pycache__/
+CLAUDE.md

@@ -11,7 +11,7 @@ async def run(app):
         await conn.run_sync(DBBase.metadata.create_all)
     yield
 
-AnaML = FastAPI(lifespan=run)
-AnaML.include_router(health_router)
-AnaML.include_router(inference_router)
-AnaML.include_router(model_router)
+app = FastAPI(lifespan=run)
+app.include_router(health_router)
+app.include_router(inference_router)
+app.include_router(model_router)
