@@ -7,11 +7,11 @@ from main import app
 
 @pytest.fixture
 async def engine():
-    engine = create_async_engine(url="sqlite+aiosqlite:///", echo=True)
+    engine = create_async_engine(url="sqlite+aiosqlite:///")
     async with engine.begin() as conn:
         await conn.run_sync(DBBase.metadata.create_all)
         yield engine
-    await conn.run_sync(DBBase.metadata.drop_all)
+        await conn.run_sync(DBBase.metadata.drop_all)
     await engine.dispose()
 
 @pytest.fixture
