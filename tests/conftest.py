@@ -1,7 +1,9 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from core.database import DBBase
+from core.database import DBBase, get_session
 from httpx import AsyncClient
+import httpx
 import pytest
+from main import app
 
 @pytest.fixture
 async def engine():
@@ -19,5 +21,11 @@ async def session(engine):
         yield session
 
 @pytest.fixture
-async def client():
-    client = AsyncClient(transport=app)
+async def client(session):
+    async def override():
+        yield session
+    app.dependency_overrides[get_session] = override
+    transport = httpx.ASGITransport(app=app)
+    async with AsyncClient(base_url="http://test", transport=transport) as client:
+        yield client
+    app.dependency_overrides.clear()
