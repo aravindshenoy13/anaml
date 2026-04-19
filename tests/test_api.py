@@ -60,7 +60,7 @@ async def test_joblib_workflow(client):
 
     #delete_model fixture
     delete_response = await client.delete(f"/models/{id}")
-    assert delete_response.status_code == 200, "Model deletion failed"
+    assert delete_response.status_code == 204, "Model deletion failed"
     
     #verifying delete
     verify_response = await client.get(f"/models/{id}")
