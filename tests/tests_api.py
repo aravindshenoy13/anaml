@@ -37,7 +37,7 @@ async def test_create_model(client):
     response = await helper_create_model(client)
     assert response.status_code == 201
     data = response.json()
-    assert "id" in data
+    assert data["id"]
 
 @pytest.mark.asyncio
 async def test_list_models(client):
@@ -47,9 +47,22 @@ async def test_list_models(client):
     assert len(response)>0
 
 @pytest.mark.asyncio
-async def test_get_model(client, id):
+async def test_get_model(client):
+    create_response = await helper_create_model(client)
+    data = create_response.json()
+    id = data["id"]
     response = await client.get(f"/models/{id}")
-    assert response.status_code == 
+    assert response.status_code == 201
     data = response.json()
     assert "" in data
+
+@pytest.mark.asyncio
+async def test_predict_model(client):
+    create_response = await helper_create_model(client)
+    data = create_response.json()
+    id = data["id"]
+    payload= {
+
+    }
+    predict_response = await client.post()
 
