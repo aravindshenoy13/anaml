@@ -9,15 +9,21 @@ services:
       - "5432:5432"
     volumes:
       - "pgdata:/var/lib/postgresql/data"
+    healthcheck: 
+      test: ["CMD-SHELL", "pg_isready -U mlserve"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   
   app:
     build: .
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
-      - DATABASE_URL=postgresql+asyncpg://mlserve:mlserve@db:5432/mlserve
+      DATABASE_URL: postgresql+asyncpg://mlserve:mlserve@db:5432/mlserve
 
 volumes:
   pgdata:
