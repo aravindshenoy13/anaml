@@ -10,7 +10,8 @@ async def engine():
     engine = create_async_engine(url="sqlite+aiosqlite:///")
     async with engine.begin() as conn:
         await conn.run_sync(DBBase.metadata.create_all)
-        yield engine
+    yield engine
+    async with engine.begin() as conn:
         await conn.run_sync(DBBase.metadata.drop_all)
     await engine.dispose()
 
