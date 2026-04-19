@@ -81,7 +81,6 @@ async def update_model(id: str, model_update: ModelUpdate, session = Depends(get
     await session.refresh(model)
     return model
 
-
 @model_router.delete(path="/{id}")
 async def delete_model(id: str, session = Depends(get_session)) -> Response:
     query = select(MLModel).where(MLModel.id == id)
