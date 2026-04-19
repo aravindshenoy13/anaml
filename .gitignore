@@ -5,3 +5,4 @@ test/
 .claude/
 __pycache__/
 CLAUDE.md
+*.pkl
