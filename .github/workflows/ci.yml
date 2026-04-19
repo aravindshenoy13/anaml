@@ -1,0 +1,20 @@
+name: CI
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: 
+          python-version: "3.11"
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+      - run: python scripts/train_model.py
+      - run: pytest tests/ -v
+      - run: docker build -t anaml .
