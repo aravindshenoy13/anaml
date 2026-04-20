@@ -16,9 +16,9 @@ class JoblibModel(BaseEngine):
             raise RuntimeError("Model not loaded, call load() first")
 
         if "features" in input_data:
-            preprocessed_input_data = [input_data["features"]]
+            preprocessed_input_data = input_data["features"]
         elif "text" in input_data:
-            preprocessed_input_data = [input_data["text"]]
+            preprocessed_input_data = input_data["text"]
         elif "instances" in input_data:
             preprocessed_input_data = input_data["instances"]
         else:
