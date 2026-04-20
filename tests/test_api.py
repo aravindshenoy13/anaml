@@ -6,7 +6,7 @@ from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 
 
-def helper_data():
+def joblib_test_data():
     data_dict = {
         "name":"test-model",
         "version":"1.0",
@@ -37,7 +37,7 @@ async def test_health_live(client):
 @pytest.mark.asyncio
 async def test_joblib_workflow(client):
     #create_model fixture
-    data_dict, file_dict = helper_data()
+    data_dict, file_dict = joblib_test_data()
     create_response = await client.post("/models/register", data = data_dict, files=file_dict)
     assert create_response.status_code == 201, "Model creation failed"
     data = create_response.json()
