@@ -16,25 +16,25 @@ class JoblibModel(BaseEngine):
             raise RuntimeError("Model not loaded, call load() first")
 
         if "features" in input_data:
-            modified_input_data = [input_data["features"]]
+            preprocessed_input_data = [input_data["features"]]
         elif "text" in input_data:
-            modified_input_data = [input_data["text"]]
+            preprocessed_input_data = [input_data["text"]]
         elif "instances" in input_data:
-            modified_input_data = input_data["instances"]
+            preprocessed_input_data = input_data["instances"]
         else:
             raise ValueError("Invalid input data format")
         
         try:
             #Prediction
-            result = self.model.predict(modified_input_data)
+            result = self.model.predict(preprocessed_input_data)
 
             #Confidence Score
             confidence = None
             if hasattr(self.model, "predict_proba"):
-                probs = self.model.predict_proba(modified_input_data)
+                probs = self.model.predict_proba(preprocessed_input_data)
                 confidence = probs.max(axis=1).tolist()
             elif hasattr(self.model, "decision_function"):
-                scores = self.model.decision_function(modified_input_data)
+                scores = self.model.decision_function(preprocessed_input_data)
                 confidence = scores.tolist()
         except Exception as e:
             raise ValueError(f"Inference failed: {e}")
