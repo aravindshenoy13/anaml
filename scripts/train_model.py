@@ -1,6 +1,6 @@
+import joblib
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
-import joblib
 
 dset = load_iris()
 model = RandomForestClassifier()

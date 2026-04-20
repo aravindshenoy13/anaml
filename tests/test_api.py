@@ -1,8 +1,10 @@
+from io import BytesIO
+
+import joblib
 import pytest
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
-import joblib
-from io import BytesIO
+
 
 def helper_data():
     data_dict = {

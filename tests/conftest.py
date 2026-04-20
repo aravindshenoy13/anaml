@@ -1,9 +1,11 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from core.database import DBBase, get_session
-from httpx import AsyncClient
 import httpx
 import pytest
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+from core.database import DBBase, get_session
 from main import app
+
 
 @pytest.fixture
 async def engine():

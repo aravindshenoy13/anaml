@@ -1,6 +1,9 @@
-import joblib
-from inference.base import BaseEngine
 from typing import AsyncGenerator
+
+import joblib
+
+from inference.base import BaseEngine
+
 
 class JoblibModel(BaseEngine):
     def __init__(self):
@@ -41,7 +44,7 @@ class JoblibModel(BaseEngine):
         #Return as a dictionary
         return {"predictions": result.tolist(), "confidence": confidence}
     
-    async def stream(self, input_data: dict) -> AsyncGenerator[dict, None]:
+    async def stream(self, input_data: dict):
         result = self.predict(input_data)
         yield result
     

@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import AsyncGenerator
+
 
 class BaseEngine(ABC):
     @abstractmethod
-    def load(self, file_path: str):
+    def load(self, weight_path: str):
         pass
     
     @abstractmethod
@@ -11,5 +11,5 @@ class BaseEngine(ABC):
         pass
 
     @abstractmethod
-    async def stream(self, input_data: dict) -> AsyncGenerator[dict, None]:
+    async def stream(self, input_data: dict):
         pass

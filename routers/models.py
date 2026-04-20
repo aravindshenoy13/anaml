@@ -1,14 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, Form
+import shutil
+from pathlib import Path
+from typing import List, Literal
+
+import aiofiles
+from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile
 from fastapi.responses import Response
-from schemas.schemas import ModelResponse, ModelUpdate
+from sqlalchemy import select
+
 from core.config import MODEL_DIR
 from core.database import get_session
 from models.models import MLModel, get_uuid
-from sqlalchemy import select
-from typing import List, Literal
-from pathlib import Path
-import aiofiles
-import shutil
+from schemas.schemas import ModelResponse, ModelUpdate
 
 model_router = APIRouter(prefix="/models")
 

@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
-from core.database import get_session
 from sqlalchemy import text
+
+from core.database import get_session
 
 health_router = APIRouter(prefix="/health")
 

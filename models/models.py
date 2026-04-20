@@ -1,7 +1,10 @@
 import datetime
-from core.database import DBBase
-from sqlalchemy import Column, String, Float, DateTime, Text, ForeignKey
 import uuid
+
+from sqlalchemy import Column, DateTime, Float, ForeignKey, String, Text
+
+from core.database import DBBase
+
 
 def get_uuid():
     return str(uuid.uuid4())

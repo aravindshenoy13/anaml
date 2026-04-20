@@ -1,9 +1,12 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
+
+from core.database import DBBase, engine
 from routers.health import health_router
 from routers.inference import inference_router
 from routers.models import model_router
-from core.database import engine, DBBase
-from contextlib import asynccontextmanager
+
 
 @asynccontextmanager
 async def run(app):

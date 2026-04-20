@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
-from schemas.schemas import PredictRequest, PredictResponse
-from models.models import InferenceLog, MLModel, get_uuid
-from inference.registry import get_model_class
-from core.database import get_session
-from sqlalchemy import select
-import time
 import json
+import time
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
+
+from core.database import get_session
+from inference.registry import get_model_class
+from models.models import InferenceLog, MLModel, get_uuid
+from schemas.schemas import PredictRequest, PredictResponse
 
 inference_router = APIRouter()
 model_cache = {}
