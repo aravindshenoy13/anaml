@@ -1,7 +1,8 @@
+import json
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class ModelCreate(BaseModel):
@@ -16,9 +17,16 @@ class ModelResponse(ModelCreate):
     status: Literal["active", "archived"] = "active"
     created_at: datetime
     last_updated: datetime
-    model_metadata: dict | None = None
+    model_metadata: dict | None = None 
 
     model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("model_metadata", mode="before")
+    @classmethod
+    def parse_metadata(cls,v):
+        if isinstance(v,str):
+            json.loads(v)
+        return v
 
 class ModelUpdate(BaseModel):
     name: str | None = None
