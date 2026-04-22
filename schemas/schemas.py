@@ -34,12 +34,12 @@ class MetadataResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    @field_validator("model_metadata", mode="before")
-    @classmethod
-    def parse_metadata(cls,v):
-        if isinstance(v,str):
-            return json.loads(v)
-        return v
+    # @field_validator("model_metadata", mode="before")
+    # @classmethod
+    # def parse_metadata(cls,v):
+    #     if isinstance(v,str):
+    #         return json.loads(v)
+    #     return v
 
 class ModelUpdate(BaseModel):
     name: str | None = None

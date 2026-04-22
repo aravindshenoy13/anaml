@@ -31,8 +31,8 @@ class InferenceLog(DBBase):
 
     id = Column(String, primary_key=True, index=True, default=get_uuid)
     model_id = Column(String, ForeignKey("ml_models.id"), nullable=False)
-    input_data = Column(Text, nullable=False)
-    output_data = Column(Text, nullable=True)
+    input_data = Column(JSON, nullable=False)
+    output_data = Column(JSON, nullable=True)
     latency = Column(Float, nullable=True)
     status = Column(String(50), nullable=False)
     error_message = Column(Text, default=None)
