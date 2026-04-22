@@ -17,13 +17,19 @@ def parse_io(format_dict):
         "tensor(bool)": np.bool_,
         "tensor(float16)": np.float16,
     }
-    return {
-        x.name: {
-            "shape": x.shape,
-            "dtype": onnx_to_numpy[x.type],
+    parsed_dict = dict()
+    for x in format_dict:
+        x_shape = x.shape
+
+        x_type = x.type
+        if x_type not in onnx_to_numpy:
+            raise ValueError(f"Input type {x.type} for {x.name} not supported")
+        
+        parsed_dict[x.name] = {
+            "shape": x_shape,
+            "dtype": onnx_to_numpy[x_type]
         }
-        for x in format_dict
-    }
+    return parsed_dict
 
 class OnnxModel(BaseEngine):
     def __init__(self):
@@ -67,3 +73,24 @@ class OnnxModel(BaseEngine):
     async def stream(self, input_data: dict) -> AsyncGenerator[dict, None]:
         result = self.predict(input_data)
         yield result
+
+    def metadata(self):
+        if self.model is None:
+            raise RuntimeError("Model not loaded, call load() first")
+
+        inputs = []
+        input_shapes = []
+        input_types = []
+        for inp, inp_vals in self.input_format.items():
+            inputs.append(inp)
+            input_shapes.append(inp_vals['shape'])
+            input_types.append(inp_vals['dtype'].name)
+
+        labels = [x.name for x in self.model.get_outputs()]
+
+        return {
+            "inputs": inputs,
+            "input_shapes": input_shapes,
+            "input_types": input_types,
+            "labels": labels
+        }
