@@ -84,7 +84,7 @@ class OnnxModel(BaseEngine):
         for inp, inp_vals in self.input_format.items():
             inputs.append(inp)
             input_shapes.append(inp_vals['shape'])
-            input_types.append(inp_vals['dtype'].name)
+            input_types.append(inp_vals['dtype'].__name__)
 
         labels = [x.name for x in self.model.get_outputs()]
 
