@@ -16,7 +16,7 @@ class MLModel(DBBase):
     name = Column(String(255), nullable=False)
     version = Column(String(50), nullable=False)
     description = Column(Text)
-    metadata = Column(Text, nullable=False)
+    metadata = Column(Text, nullable=True)
     accuracy = Column(Float)
     weights_path = Column(String(255), nullable=False)
     backend_type = Column(String(50), nullable=False)
