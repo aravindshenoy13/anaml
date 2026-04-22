@@ -63,18 +63,17 @@ async def test_joblib_workflow(client):
     #create_model fixture
     data_dict, file_dict = joblib_test_data()
     create_response = await client.post("/models/register", data = data_dict, files=file_dict)
-    assert create_response.status_code == 201, "Model creation failed"
     data = create_response.json()
+    assert create_response.status_code == 201, "Model creation failed: " + data["detail"]
     id = data["id"]
     assert data["id"], "Model creation id not returned"
 
     #get_model fixture
     get_response = await client.get(f"/models/{id}")
-    assert get_response.status_code == 200, "Model retreival failed"
     data = get_response.json()
+    assert get_response.status_code == 200, "Model retreival failed: " + data["detail"]
     assert data["id"] == id, "Model retreival id not matching/not returned"
-    metadata = data["metadata"]
-    assert metadata, "Model metadata not returned"
+    assert data["metadata"], "Model metadata not returned"
 
     #predict_model fixture
     payload= {
@@ -84,15 +83,15 @@ async def test_joblib_workflow(client):
     predict_response = await client.post(f"/models/{id}/predict", json=payload)
     assert predict_response.status_code == 200, "Model prediction failed"
     data = predict_response.json()
-    assert data["output_data"]['predictions'], "Prediction output values not returned"
+    assert data["output_data"]['predictions'], "Prediction output values not returned: " + data["detail"]
 
     #delete_model fixture
     delete_response = await client.delete(f"/models/{id}")
-    assert delete_response.status_code == 204, "Model deletion failed"
+    assert delete_response.status_code == 204, "Model deletion failed: " + delete_response.json()["detail"]
     
     #verifying delete
     verify_response = await client.get(f"/models/{id}")
-    assert verify_response.status_code == 404, "Model exists after deletion"
+    assert verify_response.status_code == 404, "Model exists after deletion" 
 
 
 @pytest.mark.asyncio
@@ -100,18 +99,17 @@ async def test_onnx_workflow(client):
     #create_model fixture
     data_dict, file_dict = onnx_test_data()
     create_response = await client.post("/models/register", data = data_dict, files=file_dict)
-    assert create_response.status_code == 201, "Model creation failed"
     data = create_response.json()
+    assert create_response.status_code == 201, "Model creation failed: " + data["detail"]
     id = data["id"]
     assert data["id"], "Model creation id not returned"
 
     #get_model fixture
     get_response = await client.get(f"/models/{id}")
-    assert get_response.status_code == 200, "Model retreival failed"
     data = get_response.json()
+    assert get_response.status_code == 200, "Model retreival failed: " + data["detail"]
     assert data["id"] == id, "Model retreival id not matching/not returned"
-    metadata = data["metadata"]
-    assert metadata, "Model metadata not returned"
+    assert data["metadata"], "Model metadata not returned"
 
     #predict_model fixture
     payload= {
@@ -121,11 +119,11 @@ async def test_onnx_workflow(client):
     predict_response = await client.post(f"/models/{id}/predict", json=payload)
     assert predict_response.status_code == 200, "Model prediction failed"
     data = predict_response.json()
-    assert data["output_data"], "Prediction output values not returned"
+    assert data["output_data"]['predictions'], "Prediction output values not returned: " + data["detail"]
 
     #delete_model fixture
     delete_response = await client.delete(f"/models/{id}")
-    assert delete_response.status_code == 204, "Model deletion failed"
+    assert delete_response.status_code == 204, "Model deletion failed: " + delete_response.json()["detail"]
     
     #verifying delete
     verify_response = await client.get(f"/models/{id}")
