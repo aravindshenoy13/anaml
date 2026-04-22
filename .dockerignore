@@ -20,3 +20,4 @@ tests/
 scripts/
 *.pkl
 *.db
+temp_dir/
