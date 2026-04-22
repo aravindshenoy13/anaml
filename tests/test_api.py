@@ -116,6 +116,8 @@ async def test_onnx_workflow(client):
     "X": [[5.1, 3.5, 1.4, 0.2]]
     }}
     predict_response = await client.post(f"/models/{id}/predict", json=payload)
+    print(predict_response.json())
+
     assert predict_response.status_code == 200, "Model prediction failed"
     data = predict_response.json()
     assert data["output_data"], "Prediction output values not returned"
