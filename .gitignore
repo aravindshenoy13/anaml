@@ -10,3 +10,5 @@ CLAUDE.md
 *.pyc
 .pytest_cache/
 *.db
+.ruff_cache/
+temp_dir/
