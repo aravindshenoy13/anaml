@@ -12,7 +12,7 @@ from core.config import MODEL_DIR
 from core.database import get_session
 from inference.registry import get_model_class
 from models.models import MLModel, get_uuid
-from schemas.schemas import ModelResponse, ModelUpdate
+from schemas.schemas import MetadataResponse, ModelResponse, ModelUpdate
 
 model_router = APIRouter(prefix="/models")
 
@@ -98,6 +98,17 @@ async def update_model(id: str, model_update: ModelUpdate, session = Depends(get
     await session.commit()
     await session.refresh(model)
     return model
+
+@model_router.get(path="/{id}/metadata")
+async def get_model_metadata(id: str, session = Depends(get_session)) -> MetadataResponse:
+    query = select(MLModel).where(MLModel.id == id)
+    result = await session.execute(query)
+    model  = result.scalar_one_or_none()
+
+    if model is None:
+        raise HTTPException(status_code=404, detail=f"Model with id {id} does not exist!")
+    return model
+
 
 @model_router.delete(path="/{id}")
 async def delete_model(id: str, session = Depends(get_session)) -> Response:
