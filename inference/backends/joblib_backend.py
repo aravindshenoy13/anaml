@@ -44,15 +44,15 @@ class JoblibModel(BaseEngine):
 
         input_shape = getattr(self.model, "n_features_in_", None)
 
-        outputs = getattr(self.model, "classes_", None)
-        if outputs is not None:
-            outputs = outputs.tolist()
+        labels = getattr(self.model, "classes_", None)
+        if labels is not None:
+            labels = labels.tolist()
         
         return {
             "inputs": "features",
             "input_shapes": [None, input_shape],
             "input_types": "float64",
-            "labels": outputs
+            "labels": labels
         }
     
 
