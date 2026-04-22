@@ -75,6 +75,12 @@ async def test_joblib_workflow(client):
     assert data["id"] == model_id, "Model retreival id not matching/not returned"
     assert data["model_metadata"], "Model metadata not returned"
 
+    #model metadata fixture
+    metadata_response = await client.get(f"/models/{model_id}/metadata")
+    data = metadata_response.json()
+    assert get_response.status_code == 200, "Metadata retreival failed"
+    assert data["model_metadata"], "Model metadata not returned"
+    
     #predict_model fixture
     payload= {
     "input_data":{
@@ -109,6 +115,12 @@ async def test_onnx_workflow(client):
     data = get_response.json()
     assert get_response.status_code == 200, "Model retreival failed: " + data["detail"]
     assert data["id"] == model_id, "Model retreival id not matching/not returned"
+    assert data["model_metadata"], "Model metadata not returned"
+
+    #model metadata fixture
+    metadata_response = await client.get(f"/models/{model_id}/metadata")
+    data = metadata_response.json()
+    assert get_response.status_code == 200, "Metadata retreival failed"
     assert data["model_metadata"], "Model metadata not returned"
 
     #predict_model fixture
