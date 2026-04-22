@@ -25,7 +25,7 @@ class ModelResponse(ModelCreate):
     @classmethod
     def parse_metadata(cls,v):
         if isinstance(v,str):
-            json.loads(v)
+            return json.loads(v)
         return v
 
 class ModelUpdate(BaseModel):
