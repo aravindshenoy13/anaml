@@ -42,7 +42,7 @@ async def model_register(file: UploadFile,
         shutil.rmtree(Path(file_path).parent)
         raise HTTPException(status_code=400, detail="Model weights could not be loaded")
     try:
-        metadata_dict = temp_model.model_metadata()
+        metadata_dict = temp_model.metadata()
     except Exception:
         shutil.rmtree(Path(file_path).parent)
         raise HTTPException(status_code=400, detail="Model metadata could not be loaded")
