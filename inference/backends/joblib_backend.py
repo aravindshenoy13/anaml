@@ -50,8 +50,8 @@ class JoblibModel(BaseEngine):
         
         return {
             "inputs": "features",
-            "input_shape": [None, input_shape],
-            "input_type": "float64",
+            "input_shapes": [None, input_shape],
+            "input_types": "float64",
             "labels": outputs
         }
     
