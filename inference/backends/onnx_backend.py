@@ -60,7 +60,8 @@ class OnnxModel(BaseEngine):
         
         final_output = dict()
         for i, out in enumerate(self.model.get_outputs()):
-            final_output[out.name] = result[i].tolist()
+            val = result[i]
+            final_output[out.name] = val.tolist() if isinstance(val, np.ndarray) else val
         return final_output
 
     async def stream(self, input_data: dict) -> AsyncGenerator[dict, None]:
