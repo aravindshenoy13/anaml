@@ -1,3 +1,4 @@
+import json
 import shutil
 from pathlib import Path
 from typing import List, Literal
@@ -9,8 +10,9 @@ from sqlalchemy import select
 
 from core.config import MODEL_DIR
 from core.database import get_session
+from inference.registry import get_model_class
 from models.models import MLModel, get_uuid
-from schemas.schemas import ModelResponse, ModelUpdate
+from schemas.schemas import MetadataResponse, ModelResponse, ModelUpdate
 
 model_router = APIRouter(prefix="/models")
 
@@ -34,20 +36,34 @@ async def model_register(file: UploadFile,
     async with aiofiles.open(file_path, "wb") as f:
         await f.write(file_bytes)
 
-    model = MLModel(id = model_id,
+    try:
+        model_class = get_model_class(backend_type)
+        model = model_class()
+        model.load(file_path)
+    except Exception:
+        shutil.rmtree(Path(file_path).parent)
+        raise HTTPException(status_code=400, detail="Model weights could not be loaded")
+    try:
+        metadata_dict = model.metadata()
+    except Exception as e:
+        shutil.rmtree(Path(file_path).parent)
+        raise HTTPException(status_code=400, detail=f"Model metadata could not be loaded + {str(e)}")
+
+    db_model = MLModel(id = model_id,
             name = name,
             version = version,
             backend_type = backend_type,
             description = description,
+            model_metadata = json.dumps(metadata_dict),
             accuracy = accuracy,
             weights_path = str(file_path),
             storage_type = "disk",
             inference_url = None
             )
-    session.add(model)
+    session.add(db_model)
     await session.commit()
-    await session.refresh(model)
-    return model
+    await session.refresh(db_model)
+    return db_model
 
 @model_router.get(path="/")
 async def list_models(session = Depends(get_session)) -> List[ModelResponse]:
@@ -82,6 +98,17 @@ async def update_model(id: str, model_update: ModelUpdate, session = Depends(get
     await session.commit()
     await session.refresh(model)
     return model
+
+@model_router.get(path="/{id}/metadata")
+async def get_model_metadata(id: str, session = Depends(get_session)) -> MetadataResponse:
+    query = select(MLModel).where(MLModel.id == id)
+    result = await session.execute(query)
+    model  = result.scalar_one_or_none()
+
+    if model is None:
+        raise HTTPException(status_code=404, detail=f"Model with id {id} does not exist!")
+    return model
+
 
 @model_router.delete(path="/{id}")
 async def delete_model(id: str, session = Depends(get_session)) -> Response:

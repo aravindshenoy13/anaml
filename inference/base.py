@@ -13,3 +13,7 @@ class BaseEngine(ABC):
     @abstractmethod
     async def stream(self, input_data: dict):
         pass
+
+    @abstractmethod
+    def metadata(self):
+        pass

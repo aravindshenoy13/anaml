@@ -15,14 +15,7 @@ class JoblibModel(BaseEngine):
         if self.model is None:
             raise RuntimeError("Model not loaded, call load() first")
 
-        if "features" in input_data:
-            preprocessed_input_data = input_data["features"]
-        elif "text" in input_data:
-            preprocessed_input_data = input_data["text"]
-        elif "instances" in input_data:
-            preprocessed_input_data = input_data["instances"]
-        else:
-            raise ValueError("Invalid input data format")
+        preprocessed_input_data = input_data["features"]
         
         try:
             #Prediction
@@ -39,11 +32,27 @@ class JoblibModel(BaseEngine):
         except Exception as e:
             raise ValueError(f"Inference failed: {e}")
         
-        #Return as a dictionary
         return {"predictions": result.tolist(), "confidence": confidence}
     
     async def stream(self, input_data: dict):
         result = self.predict(input_data)
         yield result
+
+    def metadata(self):
+        if self.model is None:
+            raise RuntimeError("Model not loaded, call load() first")
+
+        input_shape = getattr(self.model, "n_features_in_", None)
+
+        labels = getattr(self.model, "classes_", None)
+        if labels is not None:
+            labels = labels.tolist()
+        
+        return {
+            "inputs": "features",
+            "input_shapes": [None, input_shape],
+            "input_types": "float64",
+            "labels": labels
+        }
     
 

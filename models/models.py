@@ -1,7 +1,7 @@
 import datetime
 import uuid
 
-from sqlalchemy import Column, DateTime, Float, ForeignKey, String, Text
+from sqlalchemy import JSON, Column, DateTime, Float, ForeignKey, String, Text
 
 from core.database import DBBase
 
@@ -16,6 +16,7 @@ class MLModel(DBBase):
     name = Column(String(255), nullable=False)
     version = Column(String(50), nullable=False)
     description = Column(Text)
+    model_metadata = Column(JSON, nullable=True)
     accuracy = Column(Float)
     weights_path = Column(String(255), nullable=False)
     backend_type = Column(String(50), nullable=False)
