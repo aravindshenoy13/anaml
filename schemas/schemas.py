@@ -16,6 +16,7 @@ class ModelResponse(ModelCreate):
     status: Literal["active", "archived"] = "active"
     created_at: datetime
     last_updated: datetime
+    metadata: dict | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
