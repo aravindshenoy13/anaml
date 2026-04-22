@@ -1,3 +1,4 @@
+import json
 import shutil
 from pathlib import Path
 from typing import List, Literal
@@ -53,7 +54,7 @@ async def model_register(file: UploadFile,
             version = version,
             backend_type = backend_type,
             description = description,
-            metadata = metadata_dict,
+            metadata = json.dumps(metadata_dict),
             accuracy = accuracy,
             weights_path = str(file_path),
             storage_type = "disk",
