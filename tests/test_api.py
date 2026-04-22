@@ -73,6 +73,8 @@ async def test_joblib_workflow(client):
     assert get_response.status_code == 200, "Model retreival failed"
     data = get_response.json()
     assert data["id"] == id, "Model retreival id not matching/not returned"
+    metadata = data["metadata"]
+    assert metadata, "Model metadata not returned"
 
     #predict_model fixture
     payload= {
@@ -108,9 +110,10 @@ async def test_onnx_workflow(client):
     assert get_response.status_code == 200, "Model retreival failed"
     data = get_response.json()
     assert data["id"] == id, "Model retreival id not matching/not returned"
+    metadata = data["metadata"]
+    assert metadata, "Model metadata not returned"
 
     #predict_model fixture
-    #FIX FOR ONNX
     payload= {
     "input_data":{
     "X": [[5.1, 3.5, 1.4, 0.2]]
