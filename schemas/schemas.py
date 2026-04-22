@@ -28,7 +28,7 @@ class ModelResponse(ModelCreate):
             return json.loads(v)
         return v
 
-class MetadataResponse():
+class MetadataResponse(BaseModel):
     id: str
     model_metadata: dict | None = None 
 
