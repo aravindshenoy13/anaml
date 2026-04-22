@@ -36,18 +36,19 @@ async def model_register(file: UploadFile,
         await f.write(file_bytes)
 
     try:
-        temp_model = get_model_class(backend_type)()
-        temp_model.load(file_path)
+        model_class = get_model_class(backend_type)
+        model = model_class()
+        model.load(file_path)
     except Exception:
         shutil.rmtree(Path(file_path).parent)
         raise HTTPException(status_code=400, detail="Model weights could not be loaded")
     try:
-        metadata_dict = temp_model.metadata()
+        metadata_dict = model.metadata()
     except Exception:
         shutil.rmtree(Path(file_path).parent)
         raise HTTPException(status_code=400, detail="Model metadata could not be loaded")
 
-    model = MLModel(id = model_id,
+    db_model = MLModel(id = model_id,
             name = name,
             version = version,
             backend_type = backend_type,
@@ -58,10 +59,10 @@ async def model_register(file: UploadFile,
             storage_type = "disk",
             inference_url = None
             )
-    session.add(model)
+    session.add(db_model)
     await session.commit()
-    await session.refresh(model)
-    return model
+    await session.refresh(db_model)
+    return db_model
 
 @model_router.get(path="/")
 async def list_models(session = Depends(get_session)) -> List[ModelResponse]:
