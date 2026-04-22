@@ -11,6 +11,7 @@ from core.config import MODEL_DIR
 from core.database import get_session
 from models.models import MLModel, get_uuid
 from schemas.schemas import ModelResponse, ModelUpdate
+from inference.registry import get_model_class
 
 model_router = APIRouter(prefix="/models")
 
@@ -34,11 +35,20 @@ async def model_register(file: UploadFile,
     async with aiofiles.open(file_path, "wb") as f:
         await f.write(file_bytes)
 
+    try:
+        temp_model = get_model_class(backend_type)()
+        temp_model.load(file_path)
+        metadata_dict = temp_model.metadata()
+    except Exception:
+        shutil.rmtree(Path(file_path).parent)
+        raise HTTPException(status_code=400, detail="Model weights could not be loaded")
+
     model = MLModel(id = model_id,
             name = name,
             version = version,
             backend_type = backend_type,
             description = description,
+            metadata = metadata_dict,
             accuracy = accuracy,
             weights_path = str(file_path),
             storage_type = "disk",
