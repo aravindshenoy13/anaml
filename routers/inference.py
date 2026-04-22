@@ -1,4 +1,3 @@
-import json
 import time
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -38,7 +37,7 @@ async def predict(id: str, predict_req: PredictRequest, session = Depends(get_se
         log = InferenceLog(
             id = log_id,
             model_id = id,
-            input_data = json.dumps(predict_req.input_data),
+            input_data = predict_req.input_data,
             output_data = None,
             latency = None,
             status = "Failed",
@@ -54,8 +53,8 @@ async def predict(id: str, predict_req: PredictRequest, session = Depends(get_se
     log = InferenceLog(
         id = log_id,
         model_id = id,
-        input_data = json.dumps(predict_req.input_data),
-        output_data = json.dumps(output_data),
+        input_data = predict_req.input_data,
+        output_data = output_data,
         latency = latency,
         status = "Successful",
         error_message = None
