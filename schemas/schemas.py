@@ -28,6 +28,19 @@ class ModelResponse(ModelCreate):
             return json.loads(v)
         return v
 
+class MetadataResponse():
+    id: str
+    model_metadata: dict | None = None 
+
+    model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("model_metadata", mode="before")
+    @classmethod
+    def parse_metadata(cls,v):
+        if isinstance(v,str):
+            return json.loads(v)
+        return v
+
 class ModelUpdate(BaseModel):
     name: str | None = None
     version: str | None = None
