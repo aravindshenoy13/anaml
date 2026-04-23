@@ -36,6 +36,7 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql+asyncpg://mlserve:mlserve@db:5432/mlserve
+      REDIS_URL: redis://cache:6379
 
 volumes:
   pgdata:
