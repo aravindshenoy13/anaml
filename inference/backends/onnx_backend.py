@@ -86,11 +86,11 @@ class OnnxModel(BaseEngine):
             input_shapes.append(inp_vals['shape'])
             input_types.append(inp_vals['dtype'].__name__)
 
-        labels = [x.name for x in self.model.get_outputs()]
+        outputs = [x.name for x in self.model.get_outputs()]
 
         return {
             "inputs": inputs,
             "input_shapes": input_shapes,
             "input_types": input_types,
-            "labels": labels
+            "outputs": outputs
         }

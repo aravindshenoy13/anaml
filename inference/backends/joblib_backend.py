@@ -43,16 +43,12 @@ class JoblibModel(BaseEngine):
             raise RuntimeError("Model not loaded, call load() first")
 
         input_shape = getattr(self.model, "n_features_in_", None)
-
-        labels = getattr(self.model, "classes_", None)
-        if labels is not None:
-            labels = labels.tolist()
         
         return {
             "inputs": "features",
             "input_shapes": [None, input_shape],
             "input_types": "float64",
-            "labels": labels
+            "outputs": ["predictions", "confidence"]
         }
     
 
