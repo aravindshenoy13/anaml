@@ -4,3 +4,4 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://mlserve:mlserve@l
 MODEL_DIR = os.getenv("MODEL_DIR", "temp_dir")
 os.makedirs(MODEL_DIR, exist_ok=True)
 ALLOWED_BACKENDS = os.getenv("ALLOWED_BACKENDS", "onnx,joblib").split(",")
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
