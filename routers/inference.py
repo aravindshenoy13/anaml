@@ -46,6 +46,7 @@ async def predict(model_id: str, predict_req: PredictRequest, session = Depends(
                 "name": model_name,
                 "version": model_version
             })
+            await redis_client.expire(model_id, 3600)
             
         backend = get_model_class(backend_type)
         model = backend()
