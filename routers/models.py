@@ -9,6 +9,7 @@ from sqlalchemy import select
 
 from core.config import MODEL_DIR
 from core.database import get_session
+from core.redis import model_cache, redis_client
 from inference.registry import get_model_class
 from models.models import MLModel, get_uuid
 from schemas.schemas import MetadataResponse, ModelResponse, ModelUpdate
@@ -71,54 +72,59 @@ async def list_models(session = Depends(get_session)) -> List[ModelResponse]:
     model_list = result.scalars().all()
     return model_list
 
-@model_router.get(path="/{id}")
-async def get_model(id: str, session = Depends(get_session)) -> ModelResponse:
-    query = select(MLModel).where(MLModel.id == id)
+@model_router.get(path="/{model_id}")
+async def get_model(model_id: str, session = Depends(get_session)) -> ModelResponse:
+    query = select(MLModel).where(MLModel.id == model_id)
     result = await session.execute(query)
     model  = result.scalar_one_or_none()
 
     if model is None:
-        raise HTTPException(status_code=404, detail=f"Model with id {id} does not exist!")
+        raise HTTPException(status_code=404, detail=f"Model with id {model_id} does not exist!")
     return model
 
-@model_router.put(path="/{id}")
-async def update_model(id: str, model_update: ModelUpdate, session = Depends(get_session)) -> ModelResponse:
-    query = select(MLModel).where(MLModel.id == id)
+@model_router.put(path="/{model_id}")
+async def update_model(model_id: str, model_update: ModelUpdate, session = Depends(get_session)) -> ModelResponse:
+    query = select(MLModel).where(MLModel.id == model_id)
     result = await session.execute(query)
     model = result.scalar_one_or_none()
     if model is None:
-        raise HTTPException(status_code=404, detail=f"Model with id {id} does not exist!")
+        raise HTTPException(status_code=404, detail=f"Model with id {model_id} does not exist!")
     
     update_data = model_update.model_dump(exclude_unset=True)
 
     for k,v in update_data.items():
         setattr(model, k, v)
     
+    await redis_client.delete(model_id)
+    model_cache.pop(model_id, None)
+
     await session.commit()
     await session.refresh(model)
     return model
 
-@model_router.get(path="/{id}/metadata")
-async def get_model_metadata(id: str, session = Depends(get_session)) -> MetadataResponse:
-    query = select(MLModel).where(MLModel.id == id)
+@model_router.get(path="/{model_id}/metadata")
+async def get_model_metadata(model_id: str, session = Depends(get_session)) -> MetadataResponse:
+    query = select(MLModel).where(MLModel.id == model_id)
     result = await session.execute(query)
     model  = result.scalar_one_or_none()
 
     if model is None:
-        raise HTTPException(status_code=404, detail=f"Model with id {id} does not exist!")
+        raise HTTPException(status_code=404, detail=f"Model with id {model_id} does not exist!")
     return model
 
 
-@model_router.delete(path="/{id}")
-async def delete_model(id: str, session = Depends(get_session)) -> Response:
-    query = select(MLModel).where(MLModel.id == id)
+@model_router.delete(path="/{model_id}")
+async def delete_model(model_id: str, session = Depends(get_session)) -> Response:
+    query = select(MLModel).where(MLModel.id == model_id)
     result = await session.execute(query)
     model = result.scalar_one_or_none()
     if model is None:
-        raise HTTPException(status_code=404, detail=f"Model with id {id} does not exist!")
+        raise HTTPException(status_code=404, detail=f"Model with id {model_id} does not exist!")
     
     if Path(model.weights_path).exists():
         shutil.rmtree(Path(model.weights_path).parent)
+    await redis_client.delete(model_id)
+    model_cache.pop(model_id, None)
     await session.delete(model)
     await session.commit()
 

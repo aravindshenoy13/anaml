@@ -4,13 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 
 from core.database import get_session
-from core.redis import redis_client
+from core.redis import model_cache, redis_client
 from inference.registry import get_model_class
 from models.models import InferenceLog, MLModel, get_uuid
 from schemas.schemas import PredictRequest, PredictResponse
 
 inference_router = APIRouter()
-model_cache = {}
 
 @inference_router.post(path="/models/{model_id}/predict")
 async def predict(model_id: str, predict_req: PredictRequest, session = Depends(get_session)) -> PredictResponse:
