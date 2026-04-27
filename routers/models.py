@@ -1,3 +1,4 @@
+import json
 import shutil
 from pathlib import Path
 from typing import List, Literal
@@ -96,6 +97,7 @@ async def update_model(model_id: str, model_update: ModelUpdate, session = Depen
         setattr(model, k, v)
     
     await redis_client.delete(model_id)
+    await redis_client.delete(f"metadata:{model_id}")
     model_cache.pop(model_id, None)
 
     await session.commit()
@@ -104,12 +106,19 @@ async def update_model(model_id: str, model_update: ModelUpdate, session = Depen
 
 @model_router.get(path="/{model_id}/metadata")
 async def get_model_metadata(model_id: str, session = Depends(get_session)) -> MetadataResponse:
-    query = select(MLModel).where(MLModel.id == model_id)
-    result = await session.execute(query)
-    model  = result.scalar_one_or_none()
+    cached = await redis_client.get(f"metadata:{model_id}")
+    #Query Cache
+    if cached:
+        model = MetadataResponse(id= model_id, model_metadata=json.loads(cached))
+    else:    
+        query = select(MLModel).where(MLModel.id == model_id)
+        result = await session.execute(query)
+        model  = result.scalar_one_or_none()
 
-    if model is None:
-        raise HTTPException(status_code=404, detail=f"Model with id {model_id} does not exist!")
+        if model is None:
+            raise HTTPException(status_code=404, detail=f"Model with id {model_id} does not exist!")
+        
+        await redis_client.set(f"metadata:{model_id}", json.dumps(model.model_metadata), ex=3600)
     return model
 
 
@@ -123,8 +132,11 @@ async def delete_model(model_id: str, session = Depends(get_session)) -> Respons
     
     if Path(model.weights_path).exists():
         shutil.rmtree(Path(model.weights_path).parent)
+
     await redis_client.delete(model_id)
+    await redis_client.delete(f"metadata:{model_id}")
     model_cache.pop(model_id, None)
+
     await session.delete(model)
     await session.commit()
 
