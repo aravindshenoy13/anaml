@@ -14,16 +14,29 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  
+
+  cache:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   app:
     build: .
     ports:
       - "8000:8000"
     depends_on:
+      cache:
+        condition: service_healthy
       db:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql+asyncpg://mlserve:mlserve@db:5432/mlserve
+      REDIS_URL: redis://cache:6379
 
 volumes:
   pgdata:
