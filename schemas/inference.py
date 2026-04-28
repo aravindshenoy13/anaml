@@ -9,3 +9,6 @@ class PredictResponse(BaseModel):
     model_version: str
     output_data: dict
     latency: float
+
+class AsyncPredictResponse(BaseModel):
+    job_id: str
