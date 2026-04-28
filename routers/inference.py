@@ -4,9 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 
 from core.database import get_session
-from core.redis import model_cache, get_redis
+from core.redis import get_redis, model_cache
+from core.utils import get_uuid
 from inference.registry import get_model_class
-from models.models import InferenceLog, MLModel, get_uuid
+from models.models import InferenceLog, MLModel
 from schemas.inference import PredictRequest, PredictResponse
 
 inference_router = APIRouter()
@@ -100,3 +101,4 @@ async def predict(model_id: str, predict_req: PredictRequest,
     )
 
     return response
+

@@ -10,9 +10,10 @@ from sqlalchemy import select
 
 from core.config import MODEL_DIR
 from core.database import get_session
-from core.redis import model_cache, get_redis
+from core.redis import get_redis, model_cache
+from core.utils import get_uuid
 from inference.registry import get_model_class
-from models.models import MLModel, get_uuid
+from models.models import MLModel
 from schemas.models import MetadataResponse, ModelResponse, ModelUpdate
 
 model_router = APIRouter(prefix="/models")

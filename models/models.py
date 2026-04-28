@@ -1,13 +1,10 @@
 import datetime
-import uuid
 
 from sqlalchemy import JSON, Column, DateTime, Float, ForeignKey, String, Text
 
 from core.database import DBBase
+from core.utils import get_uuid
 
-
-def get_uuid():
-    return str(uuid.uuid4())
 
 class MLModel(DBBase):
     __tablename__ = "ml_models"
