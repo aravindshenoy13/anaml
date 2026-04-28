@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 
 from core.database import get_session
-from core.redis import model_cache, redis_client
+from core.redis import model_cache, get_redis
 from inference.registry import get_model_class
 from models.models import InferenceLog, MLModel, get_uuid
 from schemas.schemas import PredictRequest, PredictResponse
@@ -12,7 +12,7 @@ from schemas.schemas import PredictRequest, PredictResponse
 inference_router = APIRouter()
 
 @inference_router.post(path="/models/{model_id}/predict")
-async def predict(model_id: str, predict_req: PredictRequest, session = Depends(get_session)) -> PredictResponse:
+async def predict(model_id: str, predict_req: PredictRequest, session = Depends(get_session), redis_client = Depends(get_redis)) -> PredictResponse:
     #Model Cache
     if model_id in model_cache:
         model = model_cache[model_id]["model"]

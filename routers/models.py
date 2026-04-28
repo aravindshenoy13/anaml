@@ -10,7 +10,7 @@ from sqlalchemy import select
 
 from core.config import MODEL_DIR
 from core.database import get_session
-from core.redis import model_cache, redis_client
+from core.redis import model_cache, get_redis
 from inference.registry import get_model_class
 from models.models import MLModel, get_uuid
 from schemas.schemas import MetadataResponse, ModelResponse, ModelUpdate
@@ -84,7 +84,7 @@ async def get_model(model_id: str, session = Depends(get_session)) -> ModelRespo
     return model
 
 @model_router.put(path="/{model_id}")
-async def update_model(model_id: str, model_update: ModelUpdate, session = Depends(get_session)) -> ModelResponse:
+async def update_model(model_id: str, model_update: ModelUpdate, session = Depends(get_session), redis_client = Depends(get_redis)) -> ModelResponse:
     query = select(MLModel).where(MLModel.id == model_id)
     result = await session.execute(query)
     model = result.scalar_one_or_none()
@@ -105,7 +105,7 @@ async def update_model(model_id: str, model_update: ModelUpdate, session = Depen
     return model
 
 @model_router.get(path="/{model_id}/metadata")
-async def get_model_metadata(model_id: str, session = Depends(get_session)) -> MetadataResponse:
+async def get_model_metadata(model_id: str, session = Depends(get_session), redis_client = Depends(get_redis)) -> MetadataResponse:
     cached = await redis_client.get(f"metadata:{model_id}")
     #Query Cache
     if cached:
@@ -123,7 +123,7 @@ async def get_model_metadata(model_id: str, session = Depends(get_session)) -> M
 
 
 @model_router.delete(path="/{model_id}")
-async def delete_model(model_id: str, session = Depends(get_session)) -> Response:
+async def delete_model(model_id: str, session = Depends(get_session), redis_client = Depends(get_redis)) -> Response:
     query = select(MLModel).where(MLModel.id == model_id)
     result = await session.execute(query)
     model = result.scalar_one_or_none()
