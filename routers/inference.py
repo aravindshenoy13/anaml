@@ -12,7 +12,9 @@ from schemas.schemas import PredictRequest, PredictResponse
 inference_router = APIRouter()
 
 @inference_router.post(path="/models/{model_id}/predict")
-async def predict(model_id: str, predict_req: PredictRequest, session = Depends(get_session), redis_client = Depends(get_redis)) -> PredictResponse:
+async def predict(model_id: str, predict_req: PredictRequest, 
+                session = Depends(get_session), 
+                redis_client = Depends(get_redis)) -> PredictResponse:
     #Model Cache
     if model_id in model_cache:
         model = model_cache[model_id]["model"]
