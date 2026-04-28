@@ -1,6 +1,6 @@
 import json
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
@@ -131,7 +131,7 @@ async def async_predict(model_id: str, predict_req: PredictRequest,
     job_status = {
         "status": "pending",
         "model_id": model_id,
-        "created_at": datetime.utcnow().isoformat()
+        "created_at": datetime.now(UTC).isoformat()
     }
     job_data = {
         "job_id": job_id,
