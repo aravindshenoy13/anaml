@@ -22,7 +22,9 @@ async def engine():
 @pytest.fixture
 async def redis_fixture():
     redis_client = redis.asyncio.from_url("redis://localhost:6379")
+    await redis_client.flushdb()
     yield redis_client
+    await redis_client.aclose()
 
 @pytest.fixture
 async def session(engine):
