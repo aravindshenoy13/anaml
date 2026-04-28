@@ -7,7 +7,7 @@ from core.database import get_session
 from core.redis import model_cache, get_redis
 from inference.registry import get_model_class
 from models.models import InferenceLog, MLModel, get_uuid
-from schemas.schemas import PredictRequest, PredictResponse
+from schemas.inference import PredictRequest, PredictResponse
 
 inference_router = APIRouter()
 

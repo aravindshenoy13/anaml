@@ -13,7 +13,7 @@ from core.database import get_session
 from core.redis import model_cache, get_redis
 from inference.registry import get_model_class
 from models.models import MLModel, get_uuid
-from schemas.schemas import MetadataResponse, ModelResponse, ModelUpdate
+from schemas.models import MetadataResponse, ModelResponse, ModelUpdate
 
 model_router = APIRouter(prefix="/models")
 
