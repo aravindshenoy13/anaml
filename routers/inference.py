@@ -1,4 +1,6 @@
+import json
 import time
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
@@ -8,7 +10,7 @@ from core.redis import get_redis, model_cache
 from core.utils import get_uuid
 from inference.registry import get_model_class
 from models.models import InferenceLog, MLModel
-from schemas.inference import PredictRequest, PredictResponse
+from schemas.inference import AsyncPredictResponse, PredictRequest, PredictResponse
 
 inference_router = APIRouter()
 
@@ -56,7 +58,8 @@ async def predict(model_id: str, predict_req: PredictRequest,
         model_cache[model_id] = {
             "model": model,
             "model_name": model_name,
-            "model_version": model_version
+            "model_version": model_version,
+            "backend_type": backend_type
         } 
 
     inference_start = time.perf_counter()
@@ -102,3 +105,42 @@ async def predict(model_id: str, predict_req: PredictRequest,
 
     return response
 
+@inference_router.post(path="/models/{model_id}/predict/async")
+async def async_predict(model_id: str, predict_req: PredictRequest,
+                        session = Depends(get_session),
+                        redis_client = Depends(get_redis)) -> AsyncPredictResponse:
+
+    
+    if model_id in model_cache:
+        backend_type = model_cache[model_id]["backend_type"]
+    else:
+        cached = await redis_client.hgetall(model_id)
+        if cached:
+            backend_type = cached["backend_type"]
+        else:
+            query = select(MLModel).where(MLModel.id == model_id)
+            result = await session.execute(query)
+            model_db = result.scalar_one_or_none()
+
+            if model_db is None:
+                raise HTTPException(status_code=404, detail=f"Model with id {model_id} does not exist!")
+
+            backend_type = model_db.backend_type
+    
+    job_id = get_uuid()
+    job_status = {
+        "status": "pending",
+        "model_id": model_id,
+        "created_at": datetime.utcnow().isoformat()
+    }
+    job_data = {
+        "job_id": job_id,
+        "model_id": model_id,
+        "input_data": json.dumps(predict_req.input_data),
+        "backend_type": backend_type,
+    }
+
+    await redis_client.set(f"job:{job_id}", json.dumps(job_status), ex=3600)
+    await redis_client.xadd("inference_jobs", job_data)
+
+    return AsyncPredictResponse(job_id=job_id)
