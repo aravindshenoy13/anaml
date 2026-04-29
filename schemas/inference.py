@@ -21,5 +21,5 @@ class JobStatusResponse(BaseModel):
     status: Literal["pending", "processing", "completed", "failed"]
     model_id: str
     created_at: str
-    result: dict | None
-    error_message: str | None
+    result: dict | None = None
+    error_message: str | None = None
