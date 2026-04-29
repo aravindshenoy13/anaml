@@ -10,7 +10,7 @@ from core.redis import get_redis, model_cache
 from core.utils import get_uuid
 from inference.registry import get_model_class
 from models.models import InferenceLog, MLModel
-from schemas.inference import AsyncPredictResponse, PredictRequest, PredictResponse
+from schemas.inference import AsyncPredictResponse, JobStatusResponse, PredictRequest, PredictResponse
 
 inference_router = APIRouter()
 
@@ -144,3 +144,21 @@ async def async_predict(model_id: str, predict_req: PredictRequest,
     await redis_client.xadd("inference_jobs", job_data)
 
     return AsyncPredictResponse(job_id=job_id)
+
+@inference_router.get(path="/jobs/{job_id}/")
+async def get_job(job_id: str, redis_client = Depends(get_redis)) -> JobStatusResponse:
+    job_key = f"job:{job_id}"
+    job_data = await redis_client.get(job_key)
+
+    if job_data is None:
+        raise HTTPException(status_code=404, detail=f"Job with id {job_id} does not exist/expired!")
+
+    job_status = json.loads(job_data)
+    return JobStatusResponse(
+        job_id=job_id,
+        status=job_status["status"],
+        model_id=job_status["model_id"],
+        created_at=job_status["created_at"],
+        result=job_status.get("result"),
+        error_message=job_status.get("error_message")
+    )
