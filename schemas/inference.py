@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel
 
 
@@ -13,3 +15,11 @@ class PredictResponse(BaseModel):
 
 class AsyncPredictResponse(BaseModel):
     job_id: str
+
+class JobStatusResponse(BaseModel):
+    job_id: str
+    status: Literal["pending", "processing", "completed", "failed"]
+    model_id: str
+    created_at: str
+    result: dict | None
+    error_message: str | None
