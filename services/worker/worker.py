@@ -9,7 +9,6 @@ from inference.registry import get_model_class
 
 async def startup():
     redis_client = redis.asyncio.from_url(REDIS_URL, decode_responses=True)
-    redis_client.xreadgroup()
     try:
         await redis_client.xgroup_create("inference_jobs", "worker_group", id="0", mkstream=True)
     except Exception:
@@ -49,15 +48,18 @@ async def process_job(redis_client, message):
     return message_id
 
 async def main():
-    redis_client = startup()
+    redis_client = await startup()
 
     while(True):
-        stream, message_list = redis_client.xreadgroup("worker_group", "worker-1", block=0)
-
+        stream_response = await redis_client.xreadgroup(groupname="worker_group", 
+                                                        consumername="worker-1", 
+                                                        block=0, 
+                                                        streams = {"inference_jobs": ">"})
+        stream, message_list = stream_response[0]
         for message in message_list:
-            message_id = process_job(redis_client, message)
+            message_id = await process_job(redis_client, message)
             if message_id:
-                redis_client.xack(stream, "worker_group", message_id)
+                await redis_client.xack(stream, "worker_group", message_id)
 
 
 
