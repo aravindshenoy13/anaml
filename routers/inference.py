@@ -174,6 +174,6 @@ async def get_job(job_id: str, redis_client = Depends(get_redis)) -> JobStatusRe
         status=job_status["status"],
         model_id=job_status["model_id"],
         created_at=job_status["created_at"],
-        output_data=job_status.get("result"),
+        output_data=job_status.get("output_data"),
         error_message=job_status.get("error_message")
     )
