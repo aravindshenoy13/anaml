@@ -145,7 +145,7 @@ async def async_predict(model_id: str, predict_req: PredictRequest,
 
     return AsyncPredictResponse(job_id=job_id)
 
-@inference_router.get(path="/jobs/{job_id}/")
+@inference_router.get(path="/jobs/{job_id}")
 async def get_job(job_id: str, redis_client = Depends(get_redis)) -> JobStatusResponse:
     job_key = f"job:{job_id}"
     job_data = await redis_client.get(job_key)
