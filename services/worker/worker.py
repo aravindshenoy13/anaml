@@ -1,3 +1,4 @@
+import asyncio
 import json
 import time
 
@@ -18,7 +19,7 @@ async def startup():
 async def process_job(redis_client, message):
     message_id, fields = message
     job_id = fields["job_id"]
-    input_data = fields["input_data"]
+    input_data = json.loads(fields["input_data"])
     backend_type = fields["backend_type"]
     weights_path = fields["weights_path"]
 
@@ -33,14 +34,14 @@ async def process_job(redis_client, message):
     try:
         output_data = model.predict(input_data)
     except Exception as e:
-        job_status = json.loads(await redis_client.get(f"job:{job_id}"))
+        #job_status = json.loads(await redis_client.get(f"job:{job_id}"))
         job_status["status"] = "failed"
         job_status["error_message"] = str(e)
         await redis_client.set(f"job:{job_id}", json.dumps(job_status), ex=3600)
-        return None
+        return message_id
     
     latency = time.perf_counter() - inference_start
-    job_status = json.loads(await redis_client.get(f"job:{job_id}"))
+    #job_status = json.loads(await redis_client.get(f"job:{job_id}"))
     job_status["status"] = "completed"
     job_status["latency"] = latency
     job_status["output_data"] = output_data
@@ -58,14 +59,7 @@ async def main():
         stream, message_list = stream_response[0]
         for message in message_list:
             message_id = await process_job(redis_client, message)
-            if message_id:
-                await redis_client.xack(stream, "worker_group", message_id)
+            await redis_client.xack(stream, "worker_group", message_id)
 
-
-
-
-
-
-
-
-
+if __name__ == "__main__":                                                                                                  
+    asyncio.run(main())
