@@ -61,5 +61,5 @@ async def main():
             message_id = await process_job(redis_client, message)
             await redis_client.xack(stream, "worker_group", message_id)
 
-if __name__ == "__main__":                                                                                                  
+if __name__ == "__main__":
     asyncio.run(main())
