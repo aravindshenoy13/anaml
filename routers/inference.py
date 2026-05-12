@@ -3,13 +3,12 @@ import time
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
 
 from core.database import get_session
-from core.redis import get_redis, model_cache
+from core.redis import get_redis
+from core.resolve import resolve_model
 from core.utils import get_uuid
-from inference.registry import get_model_class
-from models.models import InferenceLog, MLModel
+from models.models import InferenceLog
 from schemas.inference import AsyncPredictResponse, JobStatusResponse, PredictRequest, PredictResponse
 
 inference_router = APIRouter()
@@ -18,50 +17,11 @@ inference_router = APIRouter()
 async def predict(model_id: str, predict_req: PredictRequest, 
                 session = Depends(get_session), 
                 redis_client = Depends(get_redis)) -> PredictResponse:
-    #Model Cache
-    if model_id in model_cache:
-        model = model_cache[model_id]["model"]
-        model_name = model_cache[model_id]["model_name"]
-        model_version = model_cache[model_id]["model_version"]
-    else:
-        cached = await redis_client.hgetall(model_id)
-        #Query Cache
-        if cached:
-            model_name = cached["name"] 
-            model_version = cached["version"]
-            backend_type = cached["backend_type"]
-            weights_path = cached["weights_path"]
-        else:
-            query = select(MLModel).where(MLModel.id == model_id)
-            result = await session.execute(query)
-            model_db = result.scalar_one_or_none()
-
-            if model_db is None:
-                raise HTTPException(status_code=404, detail=f"Model with id {model_id} does not exist!")
-
-            model_name = model_db.name
-            model_version = model_db.version
-            backend_type = model_db.backend_type
-            weights_path = model_db.weights_path
-            
-            await redis_client.hset(model_id, mapping={
-                "name": model_name,
-                "version": model_version,
-                "backend_type": backend_type,
-                "weights_path": weights_path
-            })
-            await redis_client.expire(model_id, 3600)
-            
-        backend = get_model_class(backend_type)
-        model = backend()
-        model.load(weights_path)
-        model_cache[model_id] = {
-            "model": model,
-            "model_name": model_name,
-            "model_version": model_version,
-            "backend_type": backend_type,
-            "weights_path": weights_path
-        } 
+    
+    cache = await resolve_model(model_id, session, redis_client, load=True)
+    model = cache["model"]
+    model_name = cache["model_name"]
+    model_version = cache["model_version"]
 
     inference_start = time.perf_counter()
     try:
@@ -110,36 +70,10 @@ async def predict(model_id: str, predict_req: PredictRequest,
 async def async_predict(model_id: str, predict_req: PredictRequest,
                         session = Depends(get_session),
                         redis_client = Depends(get_redis)) -> AsyncPredictResponse:
-
     
-    if model_id in model_cache:
-        backend_type = model_cache[model_id]["backend_type"]
-        weights_path = model_cache[model_id]["weights_path"]
-    else:
-        cached = await redis_client.hgetall(model_id)
-        if cached:
-            backend_type = cached["backend_type"]
-            weights_path = cached["weights_path"]
-        else:
-            query = select(MLModel).where(MLModel.id == model_id)
-            result = await session.execute(query)
-            model_db = result.scalar_one_or_none()
-
-            if model_db is None:
-                raise HTTPException(status_code=404, detail=f"Model with id {model_id} does not exist!")
-
-            model_name = model_db.name
-            model_version = model_db.version
-            backend_type = model_db.backend_type
-            weights_path = model_db.weights_path
-            
-            await redis_client.hset(model_id, mapping={
-                "name": model_name,
-                "version": model_version,
-                "backend_type": backend_type,
-                "weights_path": weights_path
-            })
-            await redis_client.expire(model_id, 3600)
+    cache = await resolve_model(model_id, session, redis_client, load=False)
+    backend_type = cache["backend_type"]
+    weights_path = cache["weights_path"]
     
     job_id = get_uuid()
     job_status = {
