@@ -28,12 +28,6 @@ class ModelResponse(ModelCreate):
             return json.loads(v)
         return v
 
-class MetadataResponse(BaseModel):
-    id: str
-    model_metadata: dict | None = None 
-
-    model_config = ConfigDict(from_attributes=True)
-
 class ModelUpdate(BaseModel):
     name: str | None = None
     version: str | None = None
@@ -42,15 +36,11 @@ class ModelUpdate(BaseModel):
     backend_type: Literal["onnx", "joblib"] | None = None
     status: Literal["active", "archived"] | None = None
 
-class PredictRequest(BaseModel):
-    input_data: dict
+class MetadataResponse(BaseModel):
+    id: str
+    model_metadata: dict | None = None 
 
-class PredictResponse(BaseModel):
-    model_id: str
-    model_name: str
-    model_version: str
-    output_data: dict
-    latency: float
+    model_config = ConfigDict(from_attributes=True)
 
 class ModelStats(BaseModel):
     model_id: str

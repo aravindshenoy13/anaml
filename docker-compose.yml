@@ -37,6 +37,25 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://mlserve:mlserve@db:5432/mlserve
       REDIS_URL: redis://cache:6379
+      MODEL_DIR: /app/models
+    volumes:
+      - "modeldata:/app/models"
+    
+  worker:
+    build: .
+    command: python -m services.worker.worker
+    depends_on:
+      cache:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      REDIS_URL: redis://cache:6379
+      MODEL_DIR: /app/models
+    volumes:
+      - "modeldata:/app/models"
+
 
 volumes:
   pgdata:
+  modeldata:

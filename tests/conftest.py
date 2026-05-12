@@ -1,6 +1,6 @@
-import redis
 import httpx
 import pytest
+import redis
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
