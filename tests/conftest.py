@@ -1,12 +1,17 @@
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 import httpx
 import pytest
 import redis
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from core.database import DBBase, get_session
-from core.redis import get_redis
-from main import app
+from shared.core.database import DBBase, get_session
+from shared.core.redis import get_redis
+from services.api.main import app
 
 
 @pytest.fixture

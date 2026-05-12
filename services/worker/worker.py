@@ -1,11 +1,15 @@
 import asyncio
 import json
+import sys
 import time
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import redis
 
-from core.config import REDIS_URL
-from inference.registry import get_model_class
+from shared.core.config import REDIS_URL
+from shared.inference.registry import get_model_class
 
 
 async def startup():
