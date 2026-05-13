@@ -51,8 +51,6 @@ services:
     depends_on:
       cache:
         condition: service_healthy
-      db:
-        condition: service_healthy
     environment:
       REDIS_URL: redis://cache:6379
       MODEL_DIR: /app/models
