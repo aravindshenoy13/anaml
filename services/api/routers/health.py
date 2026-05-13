@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
-from core.database import get_session
-from core.redis import get_redis
+from shared.core.database import get_session
+from shared.core.redis import get_redis
 
 health_router = APIRouter(prefix="/health")
 

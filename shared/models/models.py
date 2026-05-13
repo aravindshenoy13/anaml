@@ -2,8 +2,8 @@ import datetime
 
 from sqlalchemy import JSON, Column, DateTime, Float, ForeignKey, String, Text
 
-from core.database import DBBase
-from core.utils import get_uuid
+from shared.core.database import DBBase
+from shared.core.utils import get_uuid
 
 
 class MLModel(DBBase):

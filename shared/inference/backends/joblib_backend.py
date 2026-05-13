@@ -1,6 +1,6 @@
 import joblib
 
-from inference.base import BaseEngine
+from shared.inference.base import BaseEngine
 
 
 class JoblibModel(BaseEngine):

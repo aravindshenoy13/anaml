@@ -3,7 +3,7 @@ from typing import AsyncGenerator
 import numpy as np
 import onnxruntime as ort
 
-from inference.base import BaseEngine
+from shared.inference.base import BaseEngine
 
 
 def parse_io(format_dict):

@@ -1,9 +1,9 @@
 from fastapi import HTTPException
 from sqlalchemy import select
 
-from core.redis import model_cache
-from inference.registry import get_model_class
-from models.models import MLModel
+from shared.core.redis import model_cache
+from shared.inference.registry import get_model_class
+from shared.models.models import MLModel
 
 
 async def resolve_model(model_id, session, redis_client, load=True):

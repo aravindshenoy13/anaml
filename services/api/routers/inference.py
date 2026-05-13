@@ -4,12 +4,12 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from core.database import get_session
-from core.redis import get_redis
-from core.resolve import resolve_model
-from core.utils import get_uuid
-from models.models import InferenceLog
-from schemas.inference import AsyncPredictResponse, JobStatusResponse, PredictRequest, PredictResponse
+from services.api.schemas.inference import AsyncPredictResponse, JobStatusResponse, PredictRequest, PredictResponse
+from shared.core.database import get_session
+from shared.core.redis import get_redis
+from shared.core.resolve import resolve_model
+from shared.core.utils import get_uuid
+from shared.models.models import InferenceLog
 
 inference_router = APIRouter()
 

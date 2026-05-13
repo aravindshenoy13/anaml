@@ -1,6 +1,6 @@
 import redis
 
-from core.config import REDIS_URL
+from shared.core.config import REDIS_URL
 
 redis_client = redis.asyncio.from_url(REDIS_URL, decode_responses=True)
 model_cache = {}

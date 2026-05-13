@@ -2,11 +2,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from core.database import DBBase, engine
-from core.redis import close_redis
-from routers.health import health_router
-from routers.inference import inference_router
-from routers.models import model_router
+from services.api.routers.health import health_router
+from services.api.routers.inference import inference_router
+from services.api.routers.models import model_router
+from shared.core.database import DBBase, engine
+from shared.core.redis import close_redis
 
 
 @asynccontextmanager
