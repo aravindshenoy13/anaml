@@ -3,9 +3,9 @@ WORKDIR /builder
 
 RUN python -m venv /opt/venv
 
-COPY requirements.txt .
+COPY services/api/requirements.txt .
 ENV PATH="/opt/venv/bin:$PATH"
-RUN pip install --no-cache-dir -r services/api/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 
 FROM python:3.11-slim
