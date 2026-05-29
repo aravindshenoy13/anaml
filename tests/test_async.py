@@ -48,7 +48,11 @@ async def test_job_pending_status(client):
 
     job_data_response = await client.get(f"/jobs/{job_id}")
     job_data = job_data_response.json()
-    assert job_data["status"]
+    assert job_data_response.status_code == 200
+    assert job_data["status"] == "pending"
     assert job_data["model_id"] == model_id
+    assert job_data["created_at"]
+    assert job_data["output_data"] is None
+    assert job_data["error_message"] is None
 
 
