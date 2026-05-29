@@ -66,7 +66,7 @@ async def predict(model_id: str, predict_req: PredictRequest,
 
     return response
 
-@inference_router.post(path="/models/{model_id}/predict/async")
+@inference_router.post(path="/models/{model_id}/predict/async", status_code=202)
 async def async_predict(model_id: str, predict_req: PredictRequest,
                         session = Depends(get_session),
                         redis_client = Depends(get_redis)) -> AsyncPredictResponse:
