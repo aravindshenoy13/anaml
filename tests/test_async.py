@@ -17,7 +17,7 @@ async def test_async_predict_returns_job_id(client):
     "input_data":{
     "features": [[5.1, 3.5, 1.4, 0.2]]
     }}
-    async_predict_response = await client.post(f"/models/{model_id}/predict/async", data=payload)
+    async_predict_response = await client.post(f"/models/{model_id}/predict/async", json=payload)
 
     assert async_predict_response.status_code == 202
     async_data = async_predict_response.json()
