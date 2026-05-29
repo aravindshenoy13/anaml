@@ -46,13 +46,17 @@ async def test_job_pending_status(client):
     job_id = async_data["job_id"]
     assert job_id
 
-    job_data_response = await client.get(f"/jobs/{job_id}")
-    assert job_data_response.status_code == 200
-    job_data = job_data_response.json()
+    job_response = await client.get(f"/jobs/{job_id}")
+    assert job_response.status_code == 200
+    job_data = job_response.json()
     assert job_data["status"] == "pending"
     assert job_data["model_id"] == model_id
     assert job_data["created_at"]
     assert job_data["output_data"] is None
     assert job_data["error_message"] is None
 
-
+@pytest.mark.asyncio
+async def test_job_non_existent(client):
+    job_id = "null"
+    job_response = await client.get(f"/jobs/{job_id}")
+    assert job_response.status_code == 404
