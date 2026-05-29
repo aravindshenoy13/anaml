@@ -56,7 +56,7 @@ async def test_job_pending_status(client):
     assert job_data["error_message"] is None
 
 @pytest.mark.asyncio
-async def test_job_non_existent(client):
-    job_id = "null"
+async def test_get_nonexistent_job_returns_404(client):
+    job_id = "nonexistent-job-id"
     job_response = await client.get(f"/jobs/{job_id}")
     assert job_response.status_code == 404
