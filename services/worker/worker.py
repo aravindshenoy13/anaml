@@ -4,8 +4,8 @@ import time
 
 import redis
 
-from core.config import REDIS_URL
-from inference.registry import get_model_class
+from shared.core.config import REDIS_URL
+from shared.inference.registry import get_model_class
 
 
 async def startup():

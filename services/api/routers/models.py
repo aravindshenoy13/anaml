@@ -8,13 +8,13 @@ from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 from sqlalchemy import select
 
-from core.config import MODEL_DIR
-from core.database import get_session
-from core.redis import get_redis, model_cache
-from core.utils import get_uuid
-from inference.registry import get_model_class
-from models.models import MLModel
-from schemas.models import MetadataResponse, ModelResponse, ModelUpdate
+from services.api.schemas.models import MetadataResponse, ModelResponse, ModelUpdate
+from shared.core.config import MODEL_DIR
+from shared.core.database import get_session
+from shared.core.redis import get_redis, model_cache
+from shared.core.utils import get_uuid
+from shared.inference.registry import get_model_class
+from shared.models.models import MLModel
 
 model_router = APIRouter(prefix="/models")
 

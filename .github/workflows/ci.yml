@@ -27,13 +27,22 @@ jobs:
           cache-dependency-path: requirements-dev.txt
       - run: pip install -r requirements-dev.txt
       - run: ruff check . --fix
-      - run: python scripts/train_model.py
       - run: pytest tests/ -v
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
+          context: .
+          file: services/api/Dockerfile
           push: false
-          tags: anaml:latest
+          tags: anaml-app:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: services/worker/Dockerfile
+          push: false
+          tags: anaml-worker:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
