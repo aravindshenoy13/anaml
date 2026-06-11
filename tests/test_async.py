@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from tests.conftest import joblib_test_data
@@ -60,3 +62,21 @@ async def test_get_nonexistent_job_returns_404(client):
     job_id = "nonexistent-job-id"
     job_response = await client.get(f"/jobs/{job_id}")
     assert job_response.status_code == 404
+
+@pytest.mark.asyncio
+async def test_get_completed_job_returns_output(client, redis_fixture):
+    job_id = "test_id"
+
+    test_dict = {
+        "status": "completed",
+        "model_id": "fake_model_id",
+        "created_at": "2026-05-29T12:00:00+00:00",
+        "output_data": {"predictions": [0], "confidence": [0.97]}
+    }
+
+    await redis_fixture.set(f"job:{job_id}", json.dumps(test_dict))
+    job_response = await client.get(f"/jobs/{job_id}")
+    assert job_response.status_code == 200
+    job_data = job_response.json()
+    assert job_data["status"] == "completed"
+    assert job_data["model_id"] == "fake_model_id"
