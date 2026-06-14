@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"net"
+	"net/http"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -63,4 +65,12 @@ func (rl *RateLimiter) Allow(ctx context.Context, key string) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+func clientKey(r *http.Request) string {
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return host
 }
