@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -38,10 +39,13 @@ func main() {
 	rate, _ := strconv.ParseFloat(rateString, 64)
 	burst, _ := strconv.Atoi(burstString)
 
-	proxy := httputil.NewSingleHostReverseProxy(upstream)
+	keys := strings.Split(os.Getenv("API_KEYS"), ",")
 
+	proxy := httputil.NewSingleHostReverseProxy(upstream)
 	limiter := NewRateLimiter(redisClient, rate, burst)
-	handler := RateLimitMiddleware(limiter)(proxy)
+	auth := NewAuthMiddleware(keys, []string{"/health", "/readyz"})
+
+	handler := auth.Middleware()(limiter.Middleware()(proxy))
 
 	http.Handle("/", handler)
 
