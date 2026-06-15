@@ -84,6 +84,9 @@ func (limiter *RateLimiter) Middleware() func(http.Handler) http.Handler {
 }
 
 func clientKey(r *http.Request) string {
+	if key, ok := r.Context().Value(apiKeyContextKey).(string); ok && key != "" {
+		return key
+	}
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return r.RemoteAddr
