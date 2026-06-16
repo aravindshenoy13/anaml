@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -68,4 +69,25 @@ func (abr *ABRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	abr.defaultProxy.ServeHTTP(w, r)
+}
+
+func ParseABRoute(raw string) (string, []WeightedBackend) {
+	var backends []WeightedBackend
+	parts := strings.Split(raw, ",")
+	path := parts[0]
+	for _, part := range parts[1:] {
+		routeParts := strings.Split(part, "|")
+
+		parsedURL, _ := url.Parse(routeParts[1])
+		weight, _ := strconv.Atoi(routeParts[2])
+
+		backend := WeightedBackend{
+			Name:   routeParts[0],
+			URL:    parsedURL,
+			Weight: weight,
+			Proxy:  httputil.NewSingleHostReverseProxy(parsedURL),
+		}
+		backends = append(backends, backend)
+	}
+	return path, backends
 }
