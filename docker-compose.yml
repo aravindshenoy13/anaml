@@ -57,7 +57,21 @@ services:
     volumes:
       - "modeldata:/app/models"
 
-
+  gateway:
+    build:
+      context: ./services/gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      app:
+        condition: service_started
+    environment:
+      UPSTREAM_URL: http://app:8000
+      REDIS_URL: cache:6379
+      API_KEYS: "test-key-1,test-key-2"
+      RATE_LIMIT_RPS: "10"
+      RATE_LIMIT_BURST: "100"
+        
 volumes:
   pgdata:
   modeldata:
