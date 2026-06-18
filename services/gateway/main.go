@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"log/slog"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -13,6 +14,8 @@ import (
 )
 
 func main() {
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
+
 	upstreamRaw := os.Getenv("UPSTREAM_URL")
 	redisURL := os.Getenv("REDIS_URL")
 	rateString := os.Getenv("RATE_LIMIT_RPS")
@@ -51,7 +54,7 @@ func main() {
 		abRouter.AddRoute(path, backends)
 	}
 
-	handler := auth.Middleware()(limiter.Middleware()(abRouter))
+	handler := LoggingMiddleware(auth.Middleware()(limiter.Middleware()(abRouter)))
 
 	http.Handle("/", handler)
 
@@ -61,7 +64,7 @@ func main() {
 	}
 	addr := ":" + port
 
-	log.Printf("gateway listening on %s -> %s", addr, upstreamRaw)
+	slog.Info("gateway starting", "addr", addr, "upstream", upstreamRaw)
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatal(err)
 	}
